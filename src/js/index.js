@@ -1,4 +1,4 @@
-import "../css/styles.css";
+import "../css/styles.css" with { type: 'css' };
 
 // =============================================================================
 // SWEEPSTAKE CONFIG
