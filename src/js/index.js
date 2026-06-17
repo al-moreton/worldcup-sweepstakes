@@ -1,4 +1,6 @@
 import "../css/styles.css" with { type: 'css' };
+// const JSON_URL = 'https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2022/worldcup.json';
+
 
 // =============================================================================
 // SWEEPSTAKE CONFIG
@@ -6,7 +8,6 @@ import "../css/styles.css" with { type: 'css' };
 
 // Fast-updating fork — same schema as openfootball, updated within hours of FT
 const JSON_URL = 'https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2026/worldcup.json';
-// const JSON_URL = 'https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2022/worldcup.json';
 
 // Team name aliases: maps openfootball names -> canonical sweepstake names
 const NAME_ALIASES = {
@@ -107,6 +108,12 @@ const KNOCKOUT_ROUNDS = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-fi
 
 function isGroupMatch(m)    { return m.group && m.group.startsWith('Group'); }
 function isKnockoutMatch(m) { return KNOCKOUT_ROUNDS.includes(m.round); }
+
+function fmtDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
 
 // The JSON schema uses score.ft: [team1goals, team2goals]
 function hasScore(m) {
@@ -244,12 +251,6 @@ function calcParticipantScore(participant, teamStats) {
 // RENDER
 // =============================================================================
 
-function fmtDate(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-}
-
 function renderBoard(teamStats) {
   const scored = PARTICIPANTS.map(p => {
     const { total, breakdown } = calcParticipantScore(p, teamStats);
@@ -358,8 +359,11 @@ async function loadData() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
-    const teamStats = processMatches(data.matches || []);
+    const matches = data.matches || [];
+    const teamStats = processMatches(matches);
     renderBoard(teamStats);
+    renderGroupTables(matches);
+    renderKnockout(matches);
 
     const now = new Date();
     document.getElementById('updated-pill').innerHTML =
@@ -377,20 +381,14 @@ async function loadData() {
 // DILLINJA MODE
 // =============================================================================
 
-const audioPlayer = document.getElementById('audioPlayer');
-
 let dillinjaActive = false;
 
 function toggleDillinja() {
   dillinjaActive = !dillinjaActive;
-
   document.body.classList.toggle('dillinja-mode', dillinjaActive);
   document.getElementById('dillinja-btn').classList.toggle('active', dillinjaActive);
-
   if (dillinjaActive) {
-    audioPlayer.play();
-  } else {
-    audioPlayer.pause();
+    window.open('https://www.youtube.com/watch?v=ix5LgdkSMXc', '_blank');
   }
 }
 
@@ -446,7 +444,7 @@ function renderGroupTables(matches) {
       const flag = teamFlags[name] || '';
       const gd = s.gf - s.ga;
       return `<tr class="${i < 2 && s.played > 0 ? 'qualified' : ''}">
-        <td><span class="gf-flag">${flag}</span>${name}</td>
+        <td>${name}</td>
         <td>${s.played}</td>
         <td><span class="wdl"><span class="wdl-w">${s.w}W</span> <span class="wdl-d">${s.d}D</span> <span class="wdl-l">${s.l}L</span></span></td>
         <td>${gd > 0 ? '+' : ''}${gd}</td>
@@ -547,4 +545,3 @@ window.toggleScoring  = toggleScoring;
 window.toggleResults  = toggleResults;
 window.toggleSection  = toggleSection;
 window.toggleDillinja = toggleDillinja;
-
