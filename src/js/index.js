@@ -381,14 +381,20 @@ async function loadData() {
 // DILLINJA MODE
 // =============================================================================
 
+const audioPlayer = document.getElementById('audioPlayer');
+
 let dillinjaActive = false;
 
 function toggleDillinja() {
   dillinjaActive = !dillinjaActive;
+
   document.body.classList.toggle('dillinja-mode', dillinjaActive);
   document.getElementById('dillinja-btn').classList.toggle('active', dillinjaActive);
+
   if (dillinjaActive) {
-    window.open('https://www.youtube.com/watch?v=ix5LgdkSMXc', '_blank');
+    audioPlayer.play();
+  } else {
+    audioPlayer.pause();
   }
 }
 
