@@ -3,12 +3,13 @@
 // Fetches live World Cup data, builds context, calls Anthropic, writes commentary.json
 // Skips the API call if nothing has changed since the last run.
 
-const fs   = require('fs');
-const path = require('path');
-const https = require('https');
+const fs = require("fs");
+const path = require("path");
+const https = require("https");
 
-const COMMENTARY_PATH = path.join(__dirname, '..', 'public', 'commentary.json');
-const DATA_URL = 'https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2026/worldcup.json';
+const COMMENTARY_PATH = path.join(__dirname, "..", "public", "commentary.json");
+const DATA_URL =
+  "https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2026/worldcup.json";
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 // ---------------------------------------------------------------------------
@@ -16,29 +17,37 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 // ---------------------------------------------------------------------------
 
 const NAME_ALIASES = {
-  'Ivory Coast':          "Côte d'Ivoire",
-  'Cape Verde':           'Cabo Verde',
-  'Bosnia & Herzegovina': 'Bosnia and Herzegovina',
-  'Czech Republic':       'Czechia',
-  'Korea Republic':       'South Korea',
-  'Turkey':               'Türkiye',
-  'Curaçao':              'Curaçao',
-  'Curacao':              'Curaçao',
+  "Ivory Coast": "Côte d'Ivoire",
+  "Cape Verde": "Cabo Verde",
+  "Bosnia & Herzegovina": "Bosnia and Herzegovina",
+  "Czech Republic": "Czechia",
+  "Korea Republic": "South Korea",
+  Turkey: "Türkiye",
+  Curaçao: "Curaçao",
+  Curacao: "Curaçao",
 };
 
-function canon(name) { return NAME_ALIASES[name] || name; }
+function canon(name) {
+  return NAME_ALIASES[name] || name;
+}
 
 const PARTICIPANTS = [
-  { name: 'Al',          teams: ['Netherlands','Croatia','Norway','Panama'] },
-  { name: 'Butters',     teams: ['Portugal','Morocco','Norway','DR Congo'] },
-  { name: 'Callum',      teams: ['France','Morocco','Norway','Tunisia'] },
-  { name: 'Carter',      teams: ['England','Colombia','Algeria','DR Congo'] },
-  { name: 'Croft',       teams: ['France','Uruguay','Norway','Uzbekistan'] },
-  { name: 'Dene',        teams: ['France','Senegal','Bosnia and Herzegovina','Tunisia'] },
-  { name: 'Ellis',       teams: ['Argentina','South Korea','Paraguay','New Zealand'] },
-  { name: 'The Foreman', teams: ['France','Colombia','Türkiye','Curaçao'] },
-  { name: 'Jim',         teams: ['Spain','Morocco','Sweden','Qatar'] },
-  { name: 'Wilmot',      teams: ['England','Morocco','Norway','Saudi Arabia'] },
+  { name: "Al", teams: ["Netherlands", "Croatia", "Norway", "Panama"] },
+  { name: "Butters", teams: ["Portugal", "Morocco", "Norway", "DR Congo"] },
+  { name: "Callum", teams: ["France", "Morocco", "Norway", "Tunisia"] },
+  { name: "Carter", teams: ["England", "Colombia", "Algeria", "DR Congo"] },
+  { name: "Croft", teams: ["France", "Uruguay", "Norway", "Uzbekistan"] },
+  {
+    name: "Dene",
+    teams: ["France", "Senegal", "Bosnia and Herzegovina", "Tunisia"],
+  },
+  {
+    name: "Ellis",
+    teams: ["Argentina", "South Korea", "Paraguay", "New Zealand"],
+  },
+  { name: "The Foreman", teams: ["France", "Colombia", "Türkiye", "Curaçao"] },
+  { name: "Jim", teams: ["Spain", "Morocco", "Sweden", "Qatar"] },
+  { name: "Wilmot", teams: ["England", "Morocco", "Norway", "Saudi Arabia"] },
 ];
 
 // Map team name -> participant name(s)
@@ -59,14 +68,19 @@ function buildOwnerMap() {
 
 function fetchJson(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'sweepstake-bot/1.0' } }, res => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch (e) { reject(new Error(`JSON parse failed: ${e.message}`)); }
-      });
-    }).on('error', reject);
+    https
+      .get(url, { headers: { "User-Agent": "sweepstake-bot/1.0" } }, (res) => {
+        let data = "";
+        res.on("data", (chunk) => (data += chunk));
+        res.on("end", () => {
+          try {
+            resolve(JSON.parse(data));
+          } catch (e) {
+            reject(new Error(`JSON parse failed: ${e.message}`));
+          }
+        });
+      })
+      .on("error", reject);
   });
 }
 
@@ -74,18 +88,25 @@ function postJson(url, payload, headers) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify(payload);
     const opts = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body), ...headers },
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(body),
+        ...headers,
+      },
     };
-    const req = https.request(url, opts, res => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch (e) { reject(new Error(`Response parse failed: ${e.message}`)); }
+    const req = https.request(url, opts, (res) => {
+      let data = "";
+      res.on("data", (chunk) => (data += chunk));
+      res.on("end", () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch (e) {
+          reject(new Error(`Response parse failed: ${e.message}`));
+        }
       });
     });
-    req.on('error', reject);
+    req.on("error", reject);
     req.write(body);
     req.end();
   });
@@ -99,9 +120,17 @@ function hasScore(m) {
   return m.score && Array.isArray(m.score.ft) && m.score.ft.length === 2;
 }
 
-function isGroupMatch(m)    { return m.group && m.group.startsWith('Group'); }
+function isGroupMatch(m) {
+  return m.group && m.group.startsWith("Group");
+}
 function isKnockoutMatch(m) {
-  return ['Round of 32','Round of 16','Quarter-final','Semi-final','Final'].includes(m.round);
+  return [
+    "Round of 32",
+    "Round of 16",
+    "Quarter-final",
+    "Semi-final",
+    "Final",
+  ].includes(m.round);
 }
 
 function today() {
@@ -119,7 +148,7 @@ function yesterday() {
 // ---------------------------------------------------------------------------
 
 function buildContext(matches, ownerMap) {
-  const todayStr     = today();
+  const todayStr = today();
   const yesterdayStr = yesterday();
 
   const recentResults = [];
@@ -134,49 +163,69 @@ function buildContext(matches, ownerMap) {
     if (isGroupMatch(m)) {
       const grp = m.group;
       if (!groupStandings[grp]) groupStandings[grp] = {};
-      [t1, t2].forEach(t => { if (!groupStandings[grp][t]) groupStandings[grp][t] = { pts:0,w:0,d:0,l:0,gf:0,ga:0 }; });
+      [t1, t2].forEach((t) => {
+        if (!groupStandings[grp][t])
+          groupStandings[grp][t] = { pts: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0 };
+      });
 
       if (hasScore(m)) {
         const [s1, s2] = m.score.ft;
-        groupStandings[grp][t1].gf += s1; groupStandings[grp][t1].ga += s2;
-        groupStandings[grp][t2].gf += s2; groupStandings[grp][t2].ga += s1;
+        groupStandings[grp][t1].gf += s1;
+        groupStandings[grp][t1].ga += s2;
+        groupStandings[grp][t2].gf += s2;
+        groupStandings[grp][t2].ga += s1;
         if (s1 > s2) {
-          groupStandings[grp][t1].pts += 3; groupStandings[grp][t1].w++;
+          groupStandings[grp][t1].pts += 3;
+          groupStandings[grp][t1].w++;
           groupStandings[grp][t2].l++;
         } else if (s2 > s1) {
-          groupStandings[grp][t2].pts += 3; groupStandings[grp][t2].w++;
+          groupStandings[grp][t2].pts += 3;
+          groupStandings[grp][t2].w++;
           groupStandings[grp][t1].l++;
         } else {
-          groupStandings[grp][t1].pts++; groupStandings[grp][t1].d++;
-          groupStandings[grp][t2].pts++; groupStandings[grp][t2].d++;
+          groupStandings[grp][t1].pts++;
+          groupStandings[grp][t1].d++;
+          groupStandings[grp][t2].pts++;
+          groupStandings[grp][t2].d++;
         }
 
         // Recent results (today or yesterday)
         if (m.date === todayStr || m.date === yesterdayStr) {
-          const owners1 = (ownerMap[t1] || []).join(' & ') || '—';
-          const owners2 = (ownerMap[t2] || []).join(' & ') || '—';
-          recentResults.push(`${t1} (${owners1}) ${s1}–${s2} ${t2} (${owners2}) [${m.group}]`);
+          const owners1 = (ownerMap[t1] || []).join(" & ") || "—";
+          const owners2 = (ownerMap[t2] || []).join(" & ") || "—";
+          recentResults.push(
+            `${t1} (${owners1}) ${s1}–${s2} ${t2} (${owners2}) [${m.group}]`,
+          );
         }
       } else if (m.date === todayStr) {
-        const owners1 = (ownerMap[t1] || []).join(' & ') || '—';
-        const owners2 = (ownerMap[t2] || []).join(' & ') || '—';
-        upcomingToday.push(`${t1} (${owners1}) vs ${t2} (${owners2}) [${m.group}]`);
+        const owners1 = (ownerMap[t1] || []).join(" & ") || "—";
+        const owners2 = (ownerMap[t2] || []).join(" & ") || "—";
+        upcomingToday.push(
+          `${t1} (${owners1}) vs ${t2} (${owners2}) [${m.group}]`,
+        );
       }
     }
 
     if (isKnockoutMatch(m)) {
-      const skipTbd = name => /^(W\d|L\d|TBD)/.test(name);
+      const skipTbd = (name) => /^(W\d|L\d|TBD)/.test(name);
       if (skipTbd(m.team1) || skipTbd(m.team2)) continue;
 
       if (!hasScore(m) && m.date === todayStr) {
-        const owners1 = (ownerMap[t1] || []).join(' & ') || '—';
-        const owners2 = (ownerMap[t2] || []).join(' & ') || '—';
-        upcomingToday.push(`${t1} (${owners1}) vs ${t2} (${owners2}) [${m.round}]`);
-      } else if (hasScore(m) && (m.date === todayStr || m.date === yesterdayStr)) {
+        const owners1 = (ownerMap[t1] || []).join(" & ") || "—";
+        const owners2 = (ownerMap[t2] || []).join(" & ") || "—";
+        upcomingToday.push(
+          `${t1} (${owners1}) vs ${t2} (${owners2}) [${m.round}]`,
+        );
+      } else if (
+        hasScore(m) &&
+        (m.date === todayStr || m.date === yesterdayStr)
+      ) {
         const [s1, s2] = m.score.ft;
-        const owners1 = (ownerMap[t1] || []).join(' & ') || '—';
-        const owners2 = (ownerMap[t2] || []).join(' & ') || '—';
-        recentResults.push(`${t1} (${owners1}) ${s1}–${s2} ${t2} (${owners2}) [${m.round}]`);
+        const owners1 = (ownerMap[t1] || []).join(" & ") || "—";
+        const owners2 = (ownerMap[t2] || []).join(" & ") || "—";
+        recentResults.push(
+          `${t1} (${owners1}) ${s1}–${s2} ${t2} (${owners2}) [${m.round}]`,
+        );
       }
     }
   }
@@ -184,17 +233,20 @@ function buildContext(matches, ownerMap) {
   // Build standings summary per group (sorted by pts desc)
   const standingLines = [];
   for (const [grp, teams] of Object.entries(groupStandings).sort()) {
-    const sorted = Object.entries(teams)
-      .sort(([,a],[,b]) => b.pts - a.pts || (b.gf-b.ga) - (a.gf-a.ga));
-    const line = sorted.map(([name, s], i) => {
-      const owners = (ownerMap[name] || []).join('/') || '—';
-      return `  ${i+1}. ${name} (${owners}) ${s.pts}pts ${s.w}W${s.d}D${s.l}L`;
-    }).join('\n');
+    const sorted = Object.entries(teams).sort(
+      ([, a], [, b]) => b.pts - a.pts || b.gf - b.ga - (a.gf - a.ga),
+    );
+    const line = sorted
+      .map(([name, s], i) => {
+        const owners = (ownerMap[name] || []).join("/") || "—";
+        return `  ${i + 1}. ${name} (${owners}) ${s.pts}pts ${s.w}W${s.d}D${s.l}L`;
+      })
+      .join("\n");
     standingLines.push(`${grp}:\n${line}`);
   }
 
   // Overall sweepstake standings
-  const sweepstakeStandings = PARTICIPANTS.map(p => {
+  const sweepstakeStandings = PARTICIPANTS.map((p) => {
     let pts = 0;
     for (const team of p.teams) {
       for (const grp of Object.values(groupStandings)) {
@@ -202,11 +254,13 @@ function buildContext(matches, ownerMap) {
       }
     }
     return { name: p.name, pts, teams: p.teams };
-  }).sort((a,b) => b.pts - a.pts);
+  }).sort((a, b) => b.pts - a.pts);
 
-  const sweepstakeLines = sweepstakeStandings.map((p, i) =>
-    `  ${i+1}. ${p.name} — ${p.pts}pts (${p.teams.join(', ')})`
-  ).join('\n');
+  const sweepstakeLines = sweepstakeStandings
+    .map(
+      (p, i) => `  ${i + 1}. ${p.name} — ${p.pts}pts (${p.teams.join(", ")})`,
+    )
+    .join("\n");
 
   return {
     recentResults,
@@ -227,9 +281,11 @@ function fingerprint(ctx) {
 
 function lastFingerprint() {
   try {
-    const c = JSON.parse(fs.readFileSync(COMMENTARY_PATH, 'utf8'));
-    return c.fingerprint || '';
-  } catch { return ''; }
+    const c = JSON.parse(fs.readFileSync(COMMENTARY_PATH, "utf8"));
+    return c.fingerprint || "";
+  } catch {
+    return "";
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -237,19 +293,19 @@ function lastFingerprint() {
 // ---------------------------------------------------------------------------
 
 async function generateCommentary(ctx) {
-  const prompt = `You are a witty, slightly sarky football commentator writing a daily briefing for a World Cup 2026 sweepstake between a group of mates. Keep it punchy, specific, and funny — but not mean.
+  const prompt = `You are a witty, slightly sarky football commentator writing a daily briefing for a World Cup 2026 sweepstake between a group of mates. Keep it punchy, specific, funny, feel free to be a bit mean.
 
 SWEEPSTAKE PARTICIPANTS AND THEIR TEAMS (group stage points shown):
 ${ctx.sweepstakeLines}
 
 RECENT RESULTS (last 48hrs):
-${ctx.recentResults.length ? ctx.recentResults.join('\n') : 'No recent results yet.'}
+${ctx.recentResults.length ? ctx.recentResults.join("\n") : "No recent results yet."}
 
 TODAY'S UPCOMING FIXTURES:
-${ctx.upcomingToday.length ? ctx.upcomingToday.join('\n') : 'No more fixtures today.'}
+${ctx.upcomingToday.length ? ctx.upcomingToday.join("\n") : "No more fixtures today."}
 
 GROUP STANDINGS (top teams per group):
-${ctx.standingLines.join('\n\n')}
+${ctx.standingLines.join("\n\n")}
 
 Write a briefing of 3–5 punchy lines. Each line should be a self-contained observation or quip. Call out specific participant names and their teams. Reference today's fixtures and what's at stake in the sweepstake. If someone is having a nightmare, say so. If someone's team just got smashed, rub it in gently. End with something to watch out for today.
 
@@ -257,22 +313,23 @@ Return ONLY a JSON array of strings, one string per line of commentary. No pream
 ["Line one here.", "Line two here.", "Line three here."]`;
 
   const response = await postJson(
-    'https://api.anthropic.com/v1/messages',
+    "https://api.anthropic.com/v1/messages",
     {
-      model: 'claude-sonnet-4-6',
+      model: "claude-sonnet-4-6",
       max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
+      messages: [{ role: "user", content: prompt }],
     },
     {
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-    }
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+    },
   );
 
-  if (response.error) throw new Error(`Anthropic error: ${response.error.message}`);
+  if (response.error)
+    throw new Error(`Anthropic error: ${response.error.message}`);
 
-  const text = response.content.find(b => b.type === 'text')?.text || '[]';
-  const clean = text.replace(/```json|```/g, '').trim();
+  const text = response.content.find((b) => b.type === "text")?.text || "[]";
+  const clean = text.replace(/```json|```/g, "").trim();
   return JSON.parse(clean);
 }
 
@@ -282,32 +339,36 @@ Return ONLY a JSON array of strings, one string per line of commentary. No pream
 
 async function main() {
   if (!ANTHROPIC_API_KEY) {
-    console.error('ANTHROPIC_API_KEY not set');
+    console.error("ANTHROPIC_API_KEY not set");
     process.exit(1);
   }
 
-  console.log('Fetching match data…');
+  console.log("Fetching match data…");
   const data = await fetchJson(DATA_URL);
   const matches = data.matches || [];
 
   const ownerMap = buildOwnerMap();
   const ctx = buildContext(matches, ownerMap);
 
-  console.log(`Recent results: ${ctx.recentResults.length}, Upcoming today: ${ctx.upcomingToday.length}`);
+  console.log(
+    `Recent results: ${ctx.recentResults.length}, Upcoming today: ${ctx.upcomingToday.length}`,
+  );
 
   // Skip API call if nothing has changed
   const fp = fingerprint(ctx);
   if (fp === lastFingerprint()) {
-    console.log('No change since last run — skipping API call.');
+    console.log("No change since last run — skipping API call.");
     return;
   }
 
   // Also skip if there's nothing interesting to say
   if (!ctx.hasActivity) {
-    console.log('No activity in last 48hrs or today — skipping API call.');
+    console.log("No activity in last 48hrs or today — skipping API call.");
     // Write a placeholder so the page still shows something
     const output = {
-      lines: ["Quiet day in the sweepstake camp. Check back when the next fixtures kick off."],
+      lines: [
+        "Quiet day in the sweepstake camp. Check back when the next fixtures kick off.",
+      ],
       generated: new Date().toISOString(),
       fingerprint: fp,
     };
@@ -315,7 +376,7 @@ async function main() {
     return;
   }
 
-  console.log('Calling Anthropic…');
+  console.log("Calling Anthropic…");
   const lines = await generateCommentary(ctx);
 
   const output = {
@@ -328,7 +389,7 @@ async function main() {
   console.log(`Done. ${lines.length} lines written to commentary.json`);
 }
 
-main().catch(err => {
-  console.error('Fatal:', err.message);
+main().catch((err) => {
+  console.error("Fatal:", err.message);
   process.exit(1);
 });
