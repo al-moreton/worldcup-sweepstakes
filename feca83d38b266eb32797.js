@@ -486,6 +486,11 @@ function toggleScoring() {
   document.getElementById("scoring-body").classList.toggle("open");
 }
 
+function toggleCommentary() {
+  document.getElementById("commentary-btn").classList.toggle("open");
+  document.getElementById("commentary-body").classList.toggle("open");
+}
+
 // =============================================================================
 // FETCH & INIT
 // =============================================================================
@@ -512,6 +517,42 @@ async function loadData() {
     document.getElementById("updated-pill").textContent = "Error loading data";
   }
 }
+
+
+// =============================================================================
+// COMMENTARY
+// =============================================================================
+
+async function loadCommentary() {
+  try {
+    const res = await fetch("commentary.json", { cache: "no-cache" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const body = document.getElementById("commentary-body");
+    const stamp = document.getElementById("commentary-stamp");
+
+    if (data.generated) {
+      const d = new Date(data.generated);
+      stamp.textContent = `Generated ${d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })} at ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+    }
+
+    if (data.lines && data.lines.length) {
+      body.innerHTML = data.lines
+        .map((line) => `<p class="commentary-line">${line}</p>`)
+        .join("");
+    } else {
+      body.innerHTML =
+        '<p class="commentary-error">No commentary available yet.</p>';
+    }
+  } catch (err) {
+    // commentary.json doesn't exist yet (first deploy) — hide the section silently
+    const section = document.getElementById("commentary-section");
+    if (section) section.style.display = "none";
+  }
+}
+
+
 
 // =============================================================================
 // DILLINJA MODE
@@ -724,8 +765,10 @@ function toggleSection(id) {
 // =============================================================================
 
 loadData();
+loadCommentary();
 
 window.toggleScoring = toggleScoring;
 window.toggleResults = toggleResults;
 window.toggleSection = toggleSection;
 window.toggleDillinja = toggleDillinja;
+window.toggleCommentary = toggleCommentary;

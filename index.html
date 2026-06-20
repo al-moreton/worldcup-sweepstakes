@@ -11,11 +11,14 @@
     rel="stylesheet">
   <!--    <link rel="stylesheet" type="text/css" href="src/css/styles.css">-->
   <audio id="audioPlayer" src="f3ebbc24227e140c01a9.mp3"></audio>
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="b2d59b1c-eab4-49e4-b956-f6d58602c62b" data-domains="al-moreton.github.io"></script>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="b2d59b1c-eab4-49e4-b956-f6d58602c62b"
+          data-domains="al-moreton.github.io"></script>
 <script defer src="main.js"></script></head>
 <body>
 
-<button class="dillinja-btn" id="dillinja-btn" onclick="toggleDillinja()" title="Dillinja mode" data-umami-event="dillinja">⚡</button>
+<button class="dillinja-btn" id="dillinja-btn" onclick="toggleDillinja()" title="Dillinja mode"
+        data-umami-event="dillinja">⚡
+</button>
 
 <header class="site-header">
   <img class="hero-img"
@@ -57,6 +60,19 @@
 </header>
 
 <div class="body-wrap">
+
+  <section class="commentary-section" id="commentary-section">
+    <div class="commentary-header commentary-toggle open" id="commentary-btn" onclick="toggleCommentary()" data-umami-event="commentary">
+      <span class="commentary-label">📡 Commentary by Claude</span>
+      <div class="commentary-right">
+        <span class="commentary-stamp" id="commentary-stamp"></span>
+        <span class="arrow">▼</span>
+      </div>
+    </div>
+    <div class="commentary-body open" id="commentary-body">
+      <div class="loading">Loading commentary…</div>
+    </div>
+  </section>
 
   <section class="scoring-section">
     <button class="scoring-toggle" id="scoring-btn" onclick="toggleScoring()" data-umami-event="scoring-rules">
@@ -102,7 +118,8 @@
   </section>
 
   <section class="collapsible-section">
-    <button class="section-toggle" id="knockout-btn" onclick="toggleSection('knockout')" data-umami-event="knockout-section">
+    <button class="section-toggle" id="knockout-btn" onclick="toggleSection('knockout')"
+            data-umami-event="knockout-section">
       <span>Knockout stage</span>
       <span class="arrow">▼</span>
     </button>
@@ -120,6 +137,6 @@
 
 </div>
 
-<script type="module" src="7ba507730389c2b47604.js"></script>
+<script type="module" src="feca83d38b266eb32797.js"></script>
 </body>
 </html>
