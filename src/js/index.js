@@ -466,7 +466,7 @@ function renderBoard(teamStats) {
           <div class="score-label">pts</div>
         </div>
       </div>
-      <button class="results-toggle" id="btn-${uid}" onclick="toggleResults('${uid}')">
+      <button class="results-toggle" id="btn-${uid}" onclick="toggleResults('${uid}')" data-umami-event="team-results" data-umami-event-team="${p.name}">
         <span>Results &amp; fixtures</span>
         <span class="rt-arrow">▼</span>
       </button>

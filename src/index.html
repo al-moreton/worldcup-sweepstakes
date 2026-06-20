@@ -15,7 +15,7 @@
 </head>
 <body>
 
-<button class="dillinja-btn" id="dillinja-btn" onclick="toggleDillinja()" title="Dillinja mode">⚡</button>
+<button class="dillinja-btn" id="dillinja-btn" onclick="toggleDillinja()" title="Dillinja mode" data-umami-event="dillinja">⚡</button>
 
 <header class="site-header">
   <img class="hero-img"
@@ -59,7 +59,7 @@
 <div class="body-wrap">
 
   <section class="scoring-section">
-    <button class="scoring-toggle" id="scoring-btn" onclick="toggleScoring()">
+    <button class="scoring-toggle" id="scoring-btn" onclick="toggleScoring()" data-umami-event="scoring-rules">
       <span>Scoring rules</span>
       <span class="arrow">▼</span>
     </button>
@@ -90,7 +90,7 @@
   </section>
 
   <section class="collapsible-section">
-    <button class="section-toggle" id="groups-btn" onclick="toggleSection('groups')">
+    <button class="section-toggle" id="groups-btn" onclick="toggleSection('groups')" data-umami-event="group-section">
       <span>Group tables</span>
       <span class="arrow">▼</span>
     </button>
@@ -102,7 +102,7 @@
   </section>
 
   <section class="collapsible-section">
-    <button class="section-toggle" id="knockout-btn" onclick="toggleSection('knockout')">
+    <button class="section-toggle" id="knockout-btn" onclick="toggleSection('knockout')" data-umami-event="knockout-section">
       <span>Knockout stage</span>
       <span class="arrow">▼</span>
     </button>
