@@ -1,6 +1,7 @@
 // webpack.config.js
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   mode: "development",
@@ -8,9 +9,7 @@ module.exports = {
   output: {
     filename: "main.js",
     path: path.resolve(__dirname, "dist"),
-    clean: {
-      keep: /commentary\.json/,
-    },
+    clean: true,
   },
   devtool: "eval-source-map",
   devServer: {
@@ -20,6 +19,11 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/index.html",
+    }),
+    new CopyPlugin({ // 3. Add this to copy public files to dist automatically
+      patterns: [
+        { from: "public", to: "" },
+      ],
     }),
   ],
   module: {
