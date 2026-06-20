@@ -7,7 +7,7 @@ const fs   = require('fs');
 const path = require('path');
 const https = require('https');
 
-const COMMENTARY_PATH = path.join(__dirname, '..', 'dist', 'commentary.json');
+const COMMENTARY_PATH = path.join(__dirname, '..', 'public', 'commentary.json');
 const DATA_URL = 'https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2026/worldcup.json';
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
