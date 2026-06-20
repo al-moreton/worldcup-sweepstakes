@@ -523,11 +523,12 @@ body.dillinja-mode .body-wrap { filter: invert(0); }
     gap: 0.6rem;
 }
 .commentary-line {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     line-height: 1.55;
     color: var(--text);
     padding-left: 1rem;
     border-left: 2px solid var(--border-strong);
+    margin-bottom: 10px;
 }
 .commentary-line:first-child { border-left-color: var(--gold-bright); }
 .commentary-error {
@@ -535,3 +536,44 @@ body.dillinja-mode .body-wrap { filter: invert(0); }
     font-size: 0.75rem;
     color: var(--text-dim);
 }
+
+.commentary-right {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+/* COMMENTARY */
+.commentary-section { margin: 1.5rem 0 0; }
+.commentary-toggle {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: border-color 0.15s, color 0.15s;
+}
+.commentary-toggle:hover { border-color: var(--border-strong); color: var(--text); }
+.commentary-toggle .arrow { transition: transform 0.2s; font-size: 0.6rem; }
+.commentary-toggle.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-color: var(--border-strong); color: var(--text); }
+.commentary-toggle.open .arrow { transform: rotate(180deg); }
+.commentary-body {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-top: none;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding: 0.75rem 1rem 1rem;
+}
+.commentary-body.open { display: block; }
+

@@ -307,7 +307,7 @@ ${ctx.upcomingToday.length ? ctx.upcomingToday.join("\n") : "No more fixtures to
 GROUP STANDINGS (top teams per group):
 ${ctx.standingLines.join("\n\n")}
 
-Write a briefing of 3–5 punchy lines. Each line should be a self-contained observation or quip. Call out specific participant names and their teams. Reference today's fixtures and what's at stake in the sweepstake. If someone is having a nightmare, say so. If someone's team just got smashed, rub it in gently. End with something to watch out for today.
+Write a briefing of 3–4 punchy lines. Each line should be a self-contained observation or quip. Call out specific participant names and their teams. Reference today's fixtures and what's at stake in the sweepstake. If someone is having a nightmare, say so. If someone's team just got smashed, rub it in. End with something to watch out for today.
 
 Return ONLY a JSON array of strings, one string per line of commentary. No preamble, no markdown, no explanation. Example format:
 ["Line one here.", "Line two here.", "Line three here."]`;
@@ -356,25 +356,25 @@ async function main() {
 
   // Skip API call if nothing has changed
   const fp = fingerprint(ctx);
-  if (fp === lastFingerprint()) {
-    console.log("No change since last run — skipping API call.");
-    return;
-  }
+  // if (fp === lastFingerprint()) {
+  //   console.log("No change since last run — skipping API call.");
+  //   return;
+  // }
 
   // Also skip if there's nothing interesting to say
-  if (!ctx.hasActivity) {
-    console.log("No activity in last 48hrs or today — skipping API call.");
-    // Write a placeholder so the page still shows something
-    const output = {
-      lines: [
-        "Quiet day in the sweepstake camp. Check back when the next fixtures kick off.",
-      ],
-      generated: new Date().toISOString(),
-      fingerprint: fp,
-    };
-    fs.writeFileSync(COMMENTARY_PATH, JSON.stringify(output, null, 2));
-    return;
-  }
+  // if (!ctx.hasActivity) {
+  //   console.log("No activity in last 48hrs or today — skipping API call.");
+  //   // Write a placeholder so the page still shows something
+  //   const output = {
+  //     lines: [
+  //       "Quiet day in the sweepstake camp. Check back when the next fixtures kick off.",
+  //     ],
+  //     generated: new Date().toISOString(),
+  //     fingerprint: fp,
+  //   };
+  //   fs.writeFileSync(COMMENTARY_PATH, JSON.stringify(output, null, 2));
+  //   return;
+  // }
 
   console.log("Calling Anthropic…");
   const lines = await generateCommentary(ctx);

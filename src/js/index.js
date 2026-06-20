@@ -486,6 +486,11 @@ function toggleScoring() {
   document.getElementById("scoring-body").classList.toggle("open");
 }
 
+function toggleCommentary() {
+  document.getElementById("commentary-btn").classList.toggle("open");
+  document.getElementById("commentary-body").classList.toggle("open");
+}
+
 // =============================================================================
 // FETCH & INIT
 // =============================================================================
@@ -766,3 +771,4 @@ window.toggleScoring = toggleScoring;
 window.toggleResults = toggleResults;
 window.toggleSection = toggleSection;
 window.toggleDillinja = toggleDillinja;
+window.toggleCommentary = toggleCommentary;
