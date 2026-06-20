@@ -33,6 +33,6 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add dist/commentary.json
+          git add public/commentary.json
           git diff --staged --quiet || git commit -m "chore: update commentary [skip ci]"
           git push
