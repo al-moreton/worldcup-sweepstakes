@@ -307,7 +307,7 @@ ${ctx.upcomingToday.length ? ctx.upcomingToday.join("\n") : "No more fixtures to
 GROUP STANDINGS (top teams per group):
 ${ctx.standingLines.join("\n\n")}
 
-Write a briefing of 3–4 punchy lines. Each line should be a self-contained observation or quip. Call out specific participant names and their teams. Reference today's fixtures and what's at stake in the sweepstake. If someone is having a nightmare, say so. If someone's team just got smashed, rub it in. End with something to watch out for today.
+Write a briefing of 3–5 punchy lines. Each line should be a self-contained observation or quip. Call out specific participant names and their teams. Reference today's fixtures and what's at stake in the sweepstake. If someone is having a nightmare, say so. If someone's team just got smashed, rub it in. End with something to watch out for today.
 
 Return ONLY a JSON array of strings, one string per line of commentary. No preamble, no markdown, no explanation. Example format:
 ["Line one here.", "Line two here.", "Line three here."]`;
