@@ -321,7 +321,7 @@ h1 span { color: #f5c842; }
     top: 0.75rem;
     right: 0.75rem;
     z-index: 1000;
-    background: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.07);
     border: 1px solid rgba(255,255,255,0.12);
     border-radius: 6px;
     color: rgba(255,255,255,0.3);
@@ -349,7 +349,7 @@ h1 span { color: #f5c842; }
     50%, 100% { background-color: #000000; }
 }
 body.dillinja-mode {
-    animation: strobe 0.15s step-end infinite;
+    animation: strobe 0.1s step-end infinite;
 }
 body.dillinja-mode .site-header,
 body.dillinja-mode .body-wrap { filter: invert(0); }
@@ -485,4 +485,53 @@ body.dillinja-mode .body-wrap { filter: invert(0); }
     padding: 0.2rem 0.6rem;
     border-top: 1px solid var(--border);
     background: var(--bg);
+}
+
+/* COMMENTARY */
+.commentary-section {
+    margin: 1.5rem 0 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.commentary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+}
+.commentary-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.commentary-stamp {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--text-dim);
+}
+.commentary-body {
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+.commentary-line {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--text);
+    padding-left: 1rem;
+    border-left: 2px solid var(--border-strong);
+}
+.commentary-line:first-child { border-left-color: var(--gold-bright); }
+.commentary-error {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
 }

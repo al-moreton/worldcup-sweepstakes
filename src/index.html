@@ -11,11 +11,14 @@
     rel="stylesheet">
   <!--    <link rel="stylesheet" type="text/css" href="src/css/styles.css">-->
   <audio id="audioPlayer" src="dnb.mp3"></audio>
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="b2d59b1c-eab4-49e4-b956-f6d58602c62b" data-domains="al-moreton.github.io"></script>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="b2d59b1c-eab4-49e4-b956-f6d58602c62b"
+          data-domains="al-moreton.github.io"></script>
 </head>
 <body>
 
-<button class="dillinja-btn" id="dillinja-btn" onclick="toggleDillinja()" title="Dillinja mode" data-umami-event="dillinja">⚡</button>
+<button class="dillinja-btn" id="dillinja-btn" onclick="toggleDillinja()" title="Dillinja mode"
+        data-umami-event="dillinja">⚡
+</button>
 
 <header class="site-header">
   <img class="hero-img"
@@ -57,6 +60,16 @@
 </header>
 
 <div class="body-wrap">
+
+  <section class="commentary-section" id="commentary-section">
+    <div class="commentary-header">
+      <span class="commentary-label">📡 Today's briefing</span>
+      <span class="commentary-stamp" id="commentary-stamp"></span>
+    </div>
+    <div class="commentary-body" id="commentary-body">
+      <div class="loading">Loading commentary…</div>
+    </div>
+  </section>
 
   <section class="scoring-section">
     <button class="scoring-toggle" id="scoring-btn" onclick="toggleScoring()" data-umami-event="scoring-rules">
@@ -102,7 +115,8 @@
   </section>
 
   <section class="collapsible-section">
-    <button class="section-toggle" id="knockout-btn" onclick="toggleSection('knockout')" data-umami-event="knockout-section">
+    <button class="section-toggle" id="knockout-btn" onclick="toggleSection('knockout')"
+            data-umami-event="knockout-section">
       <span>Knockout stage</span>
       <span class="arrow">▼</span>
     </button>
