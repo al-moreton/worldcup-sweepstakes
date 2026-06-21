@@ -20,7 +20,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: "./src/index.html",
     }),
-    new CopyPlugin({ // 3. Add this to copy public files to dist automatically
+    new CopyPlugin({
       patterns: [
         { from: "public", to: "" },
       ],
