@@ -355,7 +355,7 @@ async function main() {
   );
 
   // // Skip API call if nothing has changed
-  // const fp = fingerprint(ctx);
+  const fp = fingerprint(ctx);
   // if (fp === lastFingerprint()) {
   //   console.log("No change since last run — skipping API call.");
   //   return;
