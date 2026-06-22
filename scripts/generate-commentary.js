@@ -354,27 +354,27 @@ async function main() {
     `Recent results: ${ctx.recentResults.length}, Upcoming today: ${ctx.upcomingToday.length}`,
   );
 
-  // Skip API call if nothing has changed
-  const fp = fingerprint(ctx);
-  if (fp === lastFingerprint()) {
-    console.log("No change since last run — skipping API call.");
-    return;
-  }
-
-  // Also skip if there's nothing interesting to say
-  if (!ctx.hasActivity) {
-    console.log("No activity in last 48hrs or today — skipping API call.");
-    // Write a placeholder so the page still shows something
-    const output = {
-      lines: [
-        "Quiet day in the sweepstake camp. Check back when the next fixtures kick off.",
-      ],
-      generated: new Date().toISOString(),
-      fingerprint: fp,
-    };
-    fs.writeFileSync(COMMENTARY_PATH, JSON.stringify(output, null, 2));
-    return;
-  }
+  // // Skip API call if nothing has changed
+  // const fp = fingerprint(ctx);
+  // if (fp === lastFingerprint()) {
+  //   console.log("No change since last run — skipping API call.");
+  //   return;
+  // }
+  //
+  // // Also skip if there's nothing interesting to say
+  // if (!ctx.hasActivity) {
+  //   console.log("No activity in last 48hrs or today — skipping API call.");
+  //   // Write a placeholder so the page still shows something
+  //   const output = {
+  //     lines: [
+  //       "Quiet day in the sweepstake camp. Check back when the next fixtures kick off.",
+  //     ],
+  //     generated: new Date().toISOString(),
+  //     fingerprint: fp,
+  //   };
+  //   fs.writeFileSync(COMMENTARY_PATH, JSON.stringify(output, null, 2));
+  //   return;
+  // }
 
   console.log("Calling Anthropic…");
   const lines = await generateCommentary(ctx);
