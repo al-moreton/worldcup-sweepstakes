@@ -307,7 +307,7 @@ ${ctx.upcomingToday.length ? ctx.upcomingToday.join("\n") : "No more fixtures to
 GROUP STANDINGS (top teams per group):
 ${ctx.standingLines.join("\n\n")}
 
-Write a briefing of 3–5 punchy lines. Each line should be a self-contained observation or quip. Call out specific participant names and their teams. Reference today's fixtures and what's at stake in the sweepstake. If someone is having a fucking nightmare, say so. If someone's team just got royally smashed, rub it in to the cunt that didn't do very well. End with something to watch out for today. Ellis is a female.
+Write a briefing of 3–5 punchy lines. Each line should be a self-contained observation or quip. Call out specific participant names and their teams. Reference today's fixtures and what's at stake in the sweepstake. If someone is having a fucking nightmare, say so. If someone's team just got royally smashed, rub it in to the cunt that didn't do very well. End with something to watch out for today. Ellis is a female, and do not caller her 'sweetheart', or 'darling' or any other condenscending word like that - she'd much rather be called a 'fuck'.
 
 Return ONLY a JSON array of strings, one string per line of commentary. No preamble, no markdown, no explanation. Randomly choose one participant and use one of your punchy lines to be mean about them. Example format:
 ["Line one here.", "Line two here.", "Line three here."]`;
