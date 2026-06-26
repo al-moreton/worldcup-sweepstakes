@@ -3,9 +3,9 @@ name: Generate Commentary
 on:
   schedule:
     # Runs at 07:45, 17:45, 21:15 UTC daily (just before typical kickoff windows)
-    - cron: '45 07 * * *'
-#    - cron: '45 17 * * *'
-    - cron: '15 21 * * *'
+    - cron: '45 08 * * *'
+    # - cron: '45 17 * * *'
+    # - cron: '15 21 * * *'
   # Also allow manual trigger from the Actions tab
   workflow_dispatch:
 
@@ -29,10 +29,32 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/generate-commentary.js
 
+      # - name: Commit commentary if changed
+      #   run: |
+      #     git config user.name  "github-actions[bot]"
+      #     git config user.email "github-actions[bot]@users.noreply.github.com"
+      #     git add public/commentary.json
+      #     git diff --staged --quiet || git commit -m "chore: update commentary [skip ci]"
+      #     git push
+
       - name: Commit commentary if changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Commit to main
           git add public/commentary.json
-          git diff --staged --quiet || git commit -m "chore: update commentary [skip ci]"
-          git push
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: update commentary [skip ci]"
+          git push origin main
+          
+          # Switch to live and copy to root
+          git fetch origin live
+          git checkout live
+          cp public/commentary.json commentary.json
+          git add commentary.json
+          git commit -m "chore: update commentary [skip ci]"
+          git push origin live
+          
+          # Switch back to main
+          git checkout main
