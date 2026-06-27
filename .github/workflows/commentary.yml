@@ -48,10 +48,13 @@ jobs:
           git commit -m "chore: update commentary [skip ci]"
           git push origin main
           
+          # Stash the file before switching branches
+          cp public/commentary.json /tmp/commentary.json
+          
           # Switch to live and copy to root
           git fetch origin live
           git checkout live
-          cp public/commentary.json commentary.json
+          cp /tmp/commentary.json commentary.json
           git add commentary.json
           git commit -m "chore: update commentary [skip ci]"
           git push origin live
