@@ -2,17 +2,10 @@ name: Generate Commentary
 
 on:
   schedule:
-<<<<<<< HEAD
-#    # Runs at 07:45, 17:45, 21:15 UTC daily (just before typical kickoff windows)
-    - cron: '45 08 * * *'
-##    - cron: '45 17 * * *'
-#    - cron: '15 21 * * *'
-=======
     # Runs at 07:45, 17:45, 21:15 UTC daily (just before typical kickoff windows)
     - cron: '45 08 * * *'
     # - cron: '45 17 * * *'
     # - cron: '15 21 * * *'
->>>>>>> 0909bbe6f7ef953f12a5ed358e05d3787a3faa5f
   # Also allow manual trigger from the Actions tab
   workflow_dispatch:
 
