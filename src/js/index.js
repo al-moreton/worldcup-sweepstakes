@@ -1,5 +1,6 @@
 import "../css/styles.css" with { type: "css" };
-const JSON_URL = 'https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2022/worldcup.json';
+// const JSON_URL = 'https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2022/worldcup.json';
+const JSON_URL = 'https://raw.githubusercontent.com/openfootball/worldcup.json/refs/heads/master/2026/worldcup.json';
 
 // =============================================================================
 // SWEEPSTAKE CONFIG
@@ -7,6 +8,7 @@ const JSON_URL = 'https://raw.githubusercontent.com/upbound-web/worldcup-live.js
 
 // Fast-updating fork — same schema as openfootball, updated within hours of FT
 // const JSON_URL = "https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2026/worldcup.json";
+
 
 // Team name aliases: maps openfootball names -> canonical sweepstake names
 const NAME_ALIASES = {
@@ -270,20 +272,12 @@ function processMatches(matches) {
           stats[winner].wonWorldCup = true;
         }
       } else {
-        stats[t1].matchResults.push({
-          label: `${t1} vs ${t2}`,
-          result: "pending",
-          pts: null,
-          round: m.round,
-          date: m.date,
-        });
-        stats[t2].matchResults.push({
-          label: `${t1} vs ${t2}`,
-          result: "pending",
-          pts: null,
-          round: m.round,
-          date: m.date,
-        });
+        // ✅ ADDED: these two lines were missing — teams now get credit for
+        // reaching a round even before the match has been played
+        stats[t1].knockoutRoundsReached.add(m.round);
+        stats[t2].knockoutRoundsReached.add(m.round);
+        stats[t1].matchResults.push({ label: `${t1} vs ${t2}`, result: "pending", pts: null, round: m.round, date: m.date });
+        stats[t2].matchResults.push({ label: `${t1} vs ${t2}`, result: "pending", pts: null, round: m.round, date: m.date });
       }
     }
   }
