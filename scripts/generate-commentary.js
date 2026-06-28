@@ -31,6 +31,29 @@ const NAME_ALIASES = {
 
 function canon(name) { return NAME_ALIASES[name] || name; }
 
+const KNOCKOUT_BONUSES = {
+  'Round of 32':   3,
+  'Round of 16':   5,
+  'Quarter-final': 8,
+  'Quarter-finals':8,
+  'Semi-final':    12,
+  'Semi-finals':   12,
+  'Final':         18,
+};
+const WIN_WORLD_CUP_BONUS = 25;
+const BUCKET_KNOCKOUT_BONUS = { C: 5, D: 10 };
+
+const BUCKET_MAP = {
+  'Netherlands': 'A', 'Portugal': 'A', 'France': 'A', 'England': 'A',
+  'Argentina': 'A', 'Spain': 'A',
+  'Croatia': 'B', 'Morocco': 'B', 'Uruguay': 'B', 'Senegal': 'B',
+  'South Korea': 'B', 'Colombia': 'B',
+  'Norway': 'C', 'Bosnia and Herzegovina': 'C', 'Algeria': 'C',
+  'Türkiye': 'C', 'Sweden': 'C', 'Paraguay': 'C',
+  'Panama': 'D', 'DR Congo': 'D', 'Tunisia': 'D', 'Uzbekistan': 'D',
+  'New Zealand': 'D', 'Curaçao': 'D', 'Qatar': 'D', 'Saudi Arabia': 'D',
+};
+
 const PARTICIPANTS = [
   { name: 'Al',          teams: ['Netherlands','Croatia','Norway','Panama'] },
   { name: 'Butters',     teams: ['Portugal','Morocco','Norway','DR Congo'] },
@@ -213,13 +236,45 @@ function buildContext(matches, ownerMap) {
   }).join('\n');
 
   // Sweepstake standings
+  // Full scoring: group pts + knockout round bonuses + bucket bonuses + WC win
+  // knockoutRoundsReached: team -> Set of rounds reached (built during knockout loop above)
+  const teamKnockoutRounds = {};
+  const teamWonWorldCup = new Set();
+  for (const m of matches) {
+    if (!isKnockoutMatch(m)) continue;
+    const skipTbd = name => /^(W\d|L\d|TBD|\d+[A-Z])/.test(name);
+    if (skipTbd(m.team1) || skipTbd(m.team2)) continue;
+    const t1 = canon(m.team1), t2 = canon(m.team2);
+    if (!teamKnockoutRounds[t1]) teamKnockoutRounds[t1] = new Set();
+    if (!teamKnockoutRounds[t2]) teamKnockoutRounds[t2] = new Set();
+    teamKnockoutRounds[t1].add(m.round);
+    teamKnockoutRounds[t2].add(m.round);
+    if (hasScore(m) && m.round === 'Final') {
+      const [s1, s2] = m.score.ft;
+      const winner = m.score.p ? (m.score.p[0] > m.score.p[1] ? t1 : t2) :
+        m.score.et ? (m.score.et[0] > m.score.et[1] ? t1 : t2) :
+          (s1 > s2 ? t1 : t2);
+      teamWonWorldCup.add(winner);
+    }
+  }
+
   const sweepstakeStandings = PARTICIPANTS.map(p => {
     let pts = 0;
     for (const team of p.teams) {
+      // Group stage points
       for (const grp of Object.values(groupStandings)) {
         if (grp[team]) pts += grp[team].pts;
       }
-      if (isInKnockout.has(team)) pts += 3;
+      // Knockout round bonuses
+      const rounds = teamKnockoutRounds[team] || new Set();
+      for (const [round, bonus] of Object.entries(KNOCKOUT_BONUSES)) {
+        if (rounds.has(round)) pts += bonus;
+      }
+      // World Cup win bonus
+      if (teamWonWorldCup.has(team)) pts += WIN_WORLD_CUP_BONUS;
+      // Bucket C/D underdog bonus
+      const bucket = BUCKET_MAP[team];
+      if (BUCKET_KNOCKOUT_BONUS[bucket] && rounds.size > 0) pts += BUCKET_KNOCKOUT_BONUS[bucket];
     }
     return { name: p.name, pts, teams: p.teams };
   }).sort((a,b) => b.pts - a.pts);
@@ -301,6 +356,8 @@ Write a briefing of 3–5 punchy lines. Rules:
 - Be specific — mention scores, team names, participant names
 - End with something to watch out for today
 - Randomly pick one participant and be genuinely mean about their situation
+- Call people cunts if you want, you can swear, we all do
+- Ellis is a girl, make not condescending remarks towards her like calling her a sweetheart or darling, she'd prefer if you called her a fuck
 
 Return ONLY a JSON array of strings, one string per line of commentary. No preamble, no markdown, no explanation. Example format:
 ["Line one here.", "Line two here.", "Line three here."]`;
@@ -352,17 +409,17 @@ async function main() {
   // }
 
   // Also skip if there's nothing interesting to say
-  // if (!ctx.hasActivity) {
-  //   console.log('No activity in last 48hrs or today — skipping API call.');
-  //   // Write a placeholder so the page still shows something
-  //   const output = {
-  //     lines: ["Quiet day in the sweepstake camp. Check back when the next fixtures kick off."],
-  //     generated: new Date().toISOString(),
-  //     fingerprint: fp,
-  //   };
-  //   fs.writeFileSync(COMMENTARY_PATH, JSON.stringify(output, null, 2));
-  //   return;
-  // }
+  if (!ctx.hasActivity) {
+    console.log('No activity in last 48hrs or today — skipping API call.');
+    // Write a placeholder so the page still shows something
+    const output = {
+      lines: ["Quiet day in the sweepstake camp. Check back when the next fixtures kick off."],
+      generated: new Date().toISOString(),
+      fingerprint: fp,
+    };
+    fs.writeFileSync(COMMENTARY_PATH, JSON.stringify(output, null, 2));
+    return;
+  }
 
   console.log('Calling Anthropic…');
   const lines = await generateCommentary(ctx);
