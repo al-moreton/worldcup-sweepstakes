@@ -1,13 +1,14 @@
 import "../css/styles.css" with { type: "css" };
 // const JSON_URL = 'https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2022/worldcup.json';
+const JSON_URL = 'https://raw.githubusercontent.com/openfootball/worldcup.json/refs/heads/master/2026/worldcup.json';
 
 // =============================================================================
 // SWEEPSTAKE CONFIG
 // =============================================================================
 
 // Fast-updating fork — same schema as openfootball, updated within hours of FT
-const JSON_URL =
-  "https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2026/worldcup.json";
+// const JSON_URL = "https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2026/worldcup.json";
+
 
 // Team name aliases: maps openfootball names -> canonical sweepstake names
 const NAME_ALIASES = {
@@ -271,20 +272,12 @@ function processMatches(matches) {
           stats[winner].wonWorldCup = true;
         }
       } else {
-        stats[t1].matchResults.push({
-          label: `${t1} vs ${t2}`,
-          result: "pending",
-          pts: null,
-          round: m.round,
-          date: m.date,
-        });
-        stats[t2].matchResults.push({
-          label: `${t1} vs ${t2}`,
-          result: "pending",
-          pts: null,
-          round: m.round,
-          date: m.date,
-        });
+        // ✅ ADDED: these two lines were missing — teams now get credit for
+        // reaching a round even before the match has been played
+        stats[t1].knockoutRoundsReached.add(m.round);
+        stats[t2].knockoutRoundsReached.add(m.round);
+        stats[t1].matchResults.push({ label: `${t1} vs ${t2}`, result: "pending", pts: null, round: m.round, date: m.date });
+        stats[t2].matchResults.push({ label: `${t1} vs ${t2}`, result: "pending", pts: null, round: m.round, date: m.date });
       }
     }
   }
@@ -331,6 +324,8 @@ function calcParticipantScore(participant, teamStats) {
     if (s.wonWorldCup) {
       knockoutPts += WIN_WORLD_CUP_BONUS;
       bonusItems.push({ label: "Won World Cup", pts: WIN_WORLD_CUP_BONUS });
+      updateBackground(team.flag);
+      // console.log(team.flag);
     }
 
     let bucketBonus = 0;
@@ -364,6 +359,35 @@ function calcParticipantScore(participant, teamStats) {
 // =============================================================================
 // RENDER
 // =============================================================================
+function updateBackground(flagContent) {
+  const bg = document.querySelector("body");
+  bg.classList.add(".winnerBackground");
+
+  const pageHeight = Math.max(
+    document.body.scrollHeight,
+    document.documentElement.scrollHeight
+  );
+
+// Make the background span the whole page
+  bg.style.height = `${pageHeight}px`;
+  bg.style.setProperty("--page-height", `${pageHeight + 120}px`);
+
+  for (let i = 0; i < 150; i++) {
+    const flag = document.createElement("span");
+    flag.className = "flag";
+    flag.innerHTML = `${flagContent}`;
+
+    flag.style.left = `${Math.random() * 100}%`;
+    flag.style.top = `${Math.random() * pageHeight}px`;
+    flag.style.fontSize = `${24 + Math.random() * 32}px`;
+
+    // 10–25 seconds to fall the whole page
+    flag.style.animationDuration = `${10 + Math.random() * 15}s`;
+    flag.style.animationDelay = `${-Math.random() * 25}s`;
+
+    bg.appendChild(flag);
+  }
+}
 
 function renderBoard(teamStats) {
   const scored = PARTICIPANTS.map((p) => {
