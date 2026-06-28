@@ -7,7 +7,10 @@ const fs   = require('fs');
 const path = require('path');
 const https = require('https');
 
-const COMMENTARY_PATH = path.join(__dirname, '..', 'dist', 'commentary.json');
+const COMMENTARY_PATH = path.join(__dirname, '..', 'public', 'commentary.json');
+
+// Ensure output directory exists (it won't on a fresh Actions runner)
+fs.mkdirSync(path.dirname(COMMENTARY_PATH), { recursive: true });
 const DATA_URL = 'https://raw.githubusercontent.com/upbound-web/worldcup-live.json/master/2026/worldcup.json';
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
@@ -295,9 +298,9 @@ Write a briefing of 3–5 punchy lines. Rules:
 - Reference the sweepstake leaderboard position (1st, 2nd, last etc) when calling people out — e.g. "Jim sits top on 18pts" or "The Foreman is propping up the table"
 - If a participant's team has been eliminated (group stage or knockout), make fun of them for it
 - Reference today's fixtures and what's at stake in the sweepstake
-- Be specific — mention scores, team names, participant names, and feel free to call some of them cunts
+- Be specific — mention scores, team names, participant names
 - End with something to watch out for today
-- Randomly pick one participant and be genuinely fucking mean about their situation
+- Randomly pick one participant and be genuinely mean about their situation
 
 Return ONLY a JSON array of strings, one string per line of commentary. No preamble, no markdown, no explanation. Example format:
 ["Line one here.", "Line two here.", "Line three here."]`;
