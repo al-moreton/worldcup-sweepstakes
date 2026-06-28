@@ -228,8 +228,8 @@ function buildContext(matches, ownerMap) {
   const participantStatus = PARTICIPANTS.map(p => {
     const teamStatuses = p.teams.map(team => {
       if (eliminatedInKnockout.has(team)) return `${team}: eliminated in knockout stage`;
-      if (groupEliminatedTeams.has(team)) return `${team}: eliminated in group stage`;
       if (isInKnockout.has(team)) return `${team}: still in (knockout stage)`;
+      if (groupEliminatedTeams.has(team) && isInKnockoutStage) return `${team}: eliminated in group stage`;
       return `${team}: group stage in progress`;
     });
     return `${p.name}: ${teamStatuses.join(' | ')}`;
