@@ -272,6 +272,8 @@ h1 span { color: #f5c842; }
     border-bottom: 1px solid var(--border);
 }
 .result-row:last-child { border-bottom: none; }
+.team-results-group { padding: 0.8rem 0; }
+.team-results-group + .team-results-group { border-top: 1px solid var(--border); }
 .rr-flag { font-size: 1rem; flex-shrink: 0; }
 .rr-team { font-weight: 500; color: var(--text); flex-shrink: 0; min-width: 110px; }
 .rr-result { color: var(--text-muted); flex: 1; font-size: 0.78rem; }

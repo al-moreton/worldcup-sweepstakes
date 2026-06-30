@@ -35,13 +35,27 @@ const KNOCKOUT_BONUSES = {
   'Round of 32':   3,
   'Round of 16':   5,
   'Quarter-final': 8,
-  'Quarter-finals':8,
   'Semi-final':    12,
-  'Semi-finals':   12,
   'Final':         18,
 };
 const WIN_WORLD_CUP_BONUS = 25;
 const BUCKET_KNOCKOUT_BONUS = { C: 5, D: 10 };
+
+// Normalizes round name spelling variants (some feeds use plural forms)
+const ROUND_ALIASES = {
+  'Quarter-finals': 'Quarter-final',
+  'Semi-finals': 'Semi-final',
+};
+function canonicalRound(round) { return ROUND_ALIASES[round] || round; }
+
+// A win in this round guarantees progression to the next — award that round's
+// bonus immediately rather than waiting for the next fixture to appear in the feed
+const NEXT_ROUND = {
+  'Round of 32': 'Round of 16',
+  'Round of 16': 'Quarter-final',
+  'Quarter-final': 'Semi-final',
+  'Semi-final': 'Final',
+};
 
 const BUCKET_MAP = {
   'Netherlands': 'A', 'Portugal': 'A', 'France': 'A', 'England': 'A',
@@ -127,7 +141,7 @@ function hasScore(m) {
 
 function isGroupMatch(m)    { return m.group && m.group.startsWith('Group'); }
 function isKnockoutMatch(m) {
-  return ['Round of 32','Round of 16','Quarter-final','Quarter-finals','Semi-final','Semi-finals','Final'].includes(m.round);
+  return ['Round of 32','Round of 16','Quarter-final','Semi-final','Final','Match for third place'].includes(canonicalRound(m.round));
 }
 
 function today() {
@@ -245,16 +259,19 @@ function buildContext(matches, ownerMap) {
     const skipTbd = name => /^(W\d|L\d|TBD|\d+[A-Z])/.test(name);
     if (skipTbd(m.team1) || skipTbd(m.team2)) continue;
     const t1 = canon(m.team1), t2 = canon(m.team2);
+    const round = canonicalRound(m.round);
     if (!teamKnockoutRounds[t1]) teamKnockoutRounds[t1] = new Set();
     if (!teamKnockoutRounds[t2]) teamKnockoutRounds[t2] = new Set();
-    teamKnockoutRounds[t1].add(m.round);
-    teamKnockoutRounds[t2].add(m.round);
-    if (hasScore(m) && m.round === 'Final') {
+    teamKnockoutRounds[t1].add(round);
+    teamKnockoutRounds[t2].add(round);
+    if (hasScore(m)) {
       const [s1, s2] = m.score.ft;
       const winner = m.score.p ? (m.score.p[0] > m.score.p[1] ? t1 : t2) :
         m.score.et ? (m.score.et[0] > m.score.et[1] ? t1 : t2) :
           (s1 > s2 ? t1 : t2);
-      teamWonWorldCup.add(winner);
+      const nextRound = NEXT_ROUND[round];
+      if (nextRound) teamKnockoutRounds[winner].add(nextRound);
+      if (round === 'Final') teamWonWorldCup.add(winner);
     }
   }
 
@@ -265,7 +282,7 @@ function buildContext(matches, ownerMap) {
       for (const grp of Object.values(groupStandings)) {
         if (grp[team]) pts += grp[team].pts;
       }
-      // Knockout round bonuses
+      // Knockout round bonuses (no points for the win itself, only for the round reached)
       const rounds = teamKnockoutRounds[team] || new Set();
       for (const [round, bonus] of Object.entries(KNOCKOUT_BONUSES)) {
         if (rounds.has(round)) pts += bonus;
@@ -356,7 +373,7 @@ Write a briefing of 3–5 punchy lines. Rules:
 - Be specific — mention scores, team names, participant names
 - End with something to watch out for today
 - Randomly pick one participant and be genuinely mean about their situation
-- Call people cunts if you want, you can swear, we all do
+- Call people cunts if you want, you can swear, we all do  
 - Ellis is a girl, make not condescending remarks towards her like calling her a sweetheart or darling, she'd prefer if you called her a fuck
 
 Return ONLY a JSON array of strings, one string per line of commentary. No preamble, no markdown, no explanation. Example format:
@@ -403,10 +420,10 @@ async function main() {
 
   // Skip API call if nothing has changed
   const fp = fingerprint(ctx);
-  // if (fp === lastFingerprint()) {
-  //   console.log('No change since last run — skipping API call.');
-  //   return;
-  // }
+  if (fp === lastFingerprint()) {
+    console.log('No change since last run — skipping API call.');
+    return;
+  }
 
   // Also skip if there's nothing interesting to say
   if (!ctx.hasActivity) {
