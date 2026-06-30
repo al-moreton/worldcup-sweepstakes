@@ -62,6 +62,15 @@ function getKnockoutWinner(m, t1, t2) {
   const { s1, s2 } = getScore(m);
   return s1 > s2 ? t1 : t2;
 }
+// A draw after 90 mins goes to extra time; if still level, it's decided on penalties.
+// Picks the score that actually decided the match (ft, unless et/pens were needed) and
+// annotates it accordingly, since showing the (drawn) ft score alone would be misleading.
+function knockoutScoreLine(m, t1, t2) {
+  const { s1, s2 } = getScore(m);
+  if (m.score.p) return `${t1} ${s1}–${s2} ${t2} (${m.score.p[0]}–${m.score.p[1]} pens)`;
+  if (m.score.et) return `${t1} ${m.score.et[0]}–${m.score.et[1]} ${t2} (aet)`;
+  return `${t1} ${s1}–${s2} ${t2}`;
+}
 
 function processMatches(matches) {
   const stats = {};
@@ -89,11 +98,10 @@ function processMatches(matches) {
     } else if (isKnockoutMatch(m)) {
       const round = canonicalRound(m.round);
       if (hasScore(m)) {
-        const { s1, s2 } = getScore(m);
         const winner = getKnockoutWinner(m, t1, t2);
         const loser = winner === t1 ? t2 : t1;
         stats[t1].knockoutRoundsReached.add(round); stats[t2].knockoutRoundsReached.add(round);
-        const scoreStr = `${t1} ${s1}–${s2} ${t2}`;
+        const scoreStr = knockoutScoreLine(m, t1, t2);
         stats[t1].matchResults.push({ label: scoreStr, result: t1 === winner ? "win" : "loss", pts: null, round, date: m.date });
         stats[t2].matchResults.push({ label: scoreStr, result: t2 === winner ? "win" : "loss", pts: null, round, date: m.date });
         const nextRound = NEXT_ROUND[round];
@@ -380,10 +388,24 @@ function renderKnockout(matches) {
       const t1 = canonicalName(m.team1), t2 = canonicalName(m.team2);
       const f1 = teamFlags[t1] || "", f2 = teamFlags[t2] || "";
       const isTbd1 = /^(W\d|L\d|TBD)/.test(m.team1), isTbd2 = /^(W\d|L\d|TBD)/.test(m.team2);
-      let s1 = "–", s2 = "–", win1 = false, win2 = false;
-      if (hasScore(m)) { const sc = getScore(m); s1 = sc.s1; s2 = sc.s2; const winner = getKnockoutWinner(m, t1, t2); win1 = winner === t1; win2 = winner === t2; }
+      let s1 = "–", s2 = "–", win1 = false, win2 = false, noteStr = "";
+      if (hasScore(m)) {
+        const sc = getScore(m);
+        const winner = getKnockoutWinner(m, t1, t2); win1 = winner === t1; win2 = winner === t2;
+        if (m.score.p) {
+          // ft is still level when it went to pens, so it's the right score to show in the box
+          s1 = sc.s1; s2 = sc.s2;
+          noteStr = `${winner} won ${Math.max(m.score.p[0], m.score.p[1])}–${Math.min(m.score.p[0], m.score.p[1])} on penalties`;
+        } else if (m.score.et) {
+          // ft was level (that's why it went to extra time) so the et score is the real result
+          s1 = m.score.et[0]; s2 = m.score.et[1];
+          noteStr = "Won after extra time";
+        } else {
+          s1 = sc.s1; s2 = sc.s2;
+        }
+      }
       const dateStr = m.date ? fmtDate(m.date) : "";
-      return `<div class="ko-match"><div class="ko-team"><span class="ko-team-name ${isTbd1 ? "tbd" : ""}">${isTbd1 ? "" : f1 + " "}${isTbd1 ? m.team1 : t1}</span><span class="ko-score ${win1 ? "winner" : ""}">${s1}</span></div><div class="ko-team"><span class="ko-team-name ${isTbd2 ? "tbd" : ""}">${isTbd2 ? "" : f2 + " "}${isTbd2 ? m.team2 : t2}</span><span class="ko-score ${win2 ? "winner" : ""}">${s2}</span></div>${dateStr ? `<div class="ko-match-date">${dateStr}</div>` : ""}</div>`;
+      return `<div class="ko-match"><div class="ko-team"><span class="ko-team-name ${isTbd1 ? "tbd" : ""}">${isTbd1 ? "" : f1 + " "}${isTbd1 ? m.team1 : t1}</span><span class="ko-score ${win1 ? "winner" : ""}">${s1}</span></div><div class="ko-team"><span class="ko-team-name ${isTbd2 ? "tbd" : ""}">${isTbd2 ? "" : f2 + " "}${isTbd2 ? m.team2 : t2}</span><span class="ko-score ${win2 ? "winner" : ""}">${s2}</span></div>${noteStr ? `<div class="ko-match-note">${noteStr}</div>` : ""}${dateStr ? `<div class="ko-match-date">${dateStr}</div>` : ""}</div>`;
     }).join("");
     return `<div><div class="ko-round-label">${round}</div><div class="ko-matches">${matchCards}</div></div>`;
   }).filter(Boolean).join("")}</div>`;

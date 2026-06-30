@@ -480,6 +480,14 @@ body.dillinja-mode .body-wrap { filter: invert(0); }
     text-align: right;
 }
 .ko-score.winner { color: var(--text); }
+.ko-match-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--gold);
+    padding: 0.2rem 0.6rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+}
 .ko-match-date {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.6rem;

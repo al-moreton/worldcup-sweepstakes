@@ -139,6 +139,15 @@ function hasScore(m) {
   return m.score && Array.isArray(m.score.ft) && m.score.ft.length === 2;
 }
 
+// A draw after 90 mins goes to extra time; if still level, it's decided on penalties.
+// Picks the score that actually decided the match (ft, unless et/pens were needed) and
+// annotates it accordingly, since showing the (drawn) ft score alone would be misleading.
+function knockoutScoreStr(s1, s2, m) {
+  if (m.score.p) return `${s1}–${s2} (${m.score.p[0]}–${m.score.p[1]} pens)`;
+  if (m.score.et) return `${m.score.et[0]}–${m.score.et[1]} (aet)`;
+  return `${s1}–${s2}`;
+}
+
 function isGroupMatch(m)    { return m.group && m.group.startsWith('Group'); }
 function isKnockoutMatch(m) {
   return ['Round of 32','Round of 16','Quarter-final','Semi-final','Final','Match for third place'].includes(canonicalRound(m.round));
@@ -225,7 +234,7 @@ function buildContext(matches, ownerMap) {
       if (m.date === todayStr || m.date === yesterdayStr) {
         const o1 = (ownerMap[t1] || []).join(' & ') || '—';
         const o2 = (ownerMap[t2] || []).join(' & ') || '—';
-        recentResults.push(`${t1} (${o1}) ${s1}–${s2} ${t2} (${o2}) [${m.round}]`);
+        recentResults.push(`${t1} (${o1}) ${knockoutScoreStr(s1, s2, m)} ${t2} (${o2}) [${m.round}]`);
       }
     } else if (m.date === todayStr) {
       const o1 = (ownerMap[t1] || []).join(' & ') || '—';
@@ -370,6 +379,7 @@ Write a briefing of 3–5 punchy lines. Rules:
 - Reference the sweepstake leaderboard position (1st, 2nd, last etc) when calling people out — e.g. "Jim sits top on 18pts" or "The Foreman is propping up the table"
 - If a participant's team has been eliminated (group stage or knockout), make fun of them for it
 - Reference today's fixtures and what's at stake in the sweepstake
+- If a result went to penalties (shown as "(x–y pens)") or extra time (shown as "(aet)"), make a big deal of it — that's prime material for drama or mockery
 - Be specific — mention scores, team names, participant names
 - End with something to watch out for today
 - Randomly pick one participant and be genuinely mean about their situation
