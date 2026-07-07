@@ -382,8 +382,9 @@ Write a briefing of 3–5 punchy lines. Rules:
 - If a result went to penalties (shown as "(x–y pens)") or extra time (shown as "(aet)"), make a big deal of it — that's prime material for drama or mockery
 - Be specific — mention scores, team names, participant names
 - End with something to watch out for today
-- Randomly pick one participant and be genuinely mean about their situation
+- Randomly pick one muggy participant and be genuinely mean about their situation
 - Call people cunts if you want, you can swear, we all do  
+- be really fucking mean, especially to Wilmot, do not fucking hold back on anyone though
 - Ellis is a girl, make not condescending remarks towards her like calling her a sweetheart or darling, she'd prefer if you called her a fuck
 
 Return ONLY a JSON array of strings, one string per line of commentary. No preamble, no markdown, no explanation. Example format:
