@@ -431,10 +431,10 @@ async function main() {
 
   // Skip API call if nothing has changed
   const fp = fingerprint(ctx);
-  if (fp === lastFingerprint()) {
-    console.log('No change since last run — skipping API call.');
-    return;
-  }
+  // if (fp === lastFingerprint()) {
+  //   console.log('No change since last run — skipping API call.');
+  //   return;
+  // }
 
   // Also skip if there's nothing interesting to say
   if (!ctx.hasActivity) {
