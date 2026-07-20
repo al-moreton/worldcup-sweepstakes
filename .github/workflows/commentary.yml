@@ -3,7 +3,7 @@ name: Generate Commentary
 on:
   schedule:
     # Runs at 07:45, 17:45, 21:15 UTC daily (just before typical kickoff windows)
-    - cron: '45 08 * * *'
+    # - cron: '45 08 * * *'
     # - cron: '45 17 * * *'
     # - cron: '15 21 * * *'
   # Also allow manual trigger from the Actions tab
